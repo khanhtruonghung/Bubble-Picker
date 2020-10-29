@@ -3,11 +3,14 @@ package com.igalata.bubblepicker.physics
 import org.jbox2d.collision.shapes.CircleShape
 import org.jbox2d.common.Vec2
 import org.jbox2d.dynamics.*
+import kotlin.math.abs
 
 /**
  * Created by irinagalata on 1/26/17.
  */
-class CircleBody(val world: World, var position: Vec2, var radius: Float, var increasedRadius: Float, var density: Float) {
+class CircleBody(val world: World, var position: Vec2, var radius: Float, var newRadius: Float, var increasedRadius: Float, var density: Float) {
+
+    private val resizeStep = 0.001f
 
     val decreasedRadius: Float = radius
 
@@ -67,25 +70,25 @@ class CircleBody(val world: World, var position: Vec2, var radius: Float, var in
         }
     }
 
-    fun resize(step: Float) = if (increased) decrease(step) else increase(step)
+    fun resize() = if (increased) decrease() else increase()
 
-    fun decrease(step: Float) {
+    private fun decrease() {
         isDecreasing = true
-        radius -= step
+        radius -= resizeStep
         reset()
 
-        if (Math.abs(radius - decreasedRadius) < step) {
+        if (abs(radius - decreasedRadius) < resizeStep) {
             increased = false
             clear()
         }
     }
 
-    fun increase(step: Float) {
+    private fun increase() {
         isIncreasing = true
-        radius += step
+        radius += resizeStep
         reset()
 
-        if (Math.abs(radius - increasedRadius) < step) {
+        if (abs(radius - increasedRadius) < resizeStep) {
             increased = true
             clear()
         }
@@ -107,4 +110,29 @@ class CircleBody(val world: World, var position: Vec2, var radius: Float, var in
         isDecreasing = false
     }
 
+    /***
+     * New content added
+     */
+
+    fun scaleUp() {
+        if (radius >= newRadius) {
+            radius = newRadius
+            return
+        }
+        radius += resizeStep
+        reset()
+    }
+
+    fun scaleDown() {
+        if (radius <= newRadius) {
+            radius = newRadius
+            return
+        }
+        radius -= resizeStep
+        reset()
+    }
+
+    /***
+     * End content added
+     */
 }
